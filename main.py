@@ -2,20 +2,17 @@ import requests
 from dotenv import load_dotenv
 import os
 
-load_dotenv()
-TOKEN = os.getenv("TOKEN")
-MAINLINK = os.getenv('MAINLINK')
-
 def shorten_link(token, link):
 
     headers = {
-    'Authorization': token,
-    'Content-Type': 'application/json',
-    'long_url': link
-    }
+        'Authorization': token,
+        'Content-Type': 'application/json'
+        }
 
-    data = {"long_url": link}
-    print(data)
+    data = {
+        'long_url': link
+        }
+    
     response = requests.post(MAINLINK, headers=headers, json=data)
     response.raise_for_status()
     bitlink = response.json()
@@ -67,5 +64,9 @@ def main():
         print("Ошибка! Неверная ссылка")
 
 if __name__ == '__main__':
+
+    load_dotenv()
+    TOKEN = os.getenv("TOKEN")
+    MAINLINK = os.getenv('MAINLINK')
     
     main()
