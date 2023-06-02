@@ -54,7 +54,6 @@ def is_bitlink(token, url):
     
     u = urlparse(url)
     response = requests.get(f'{MAINLINK}{u.hostname}{u.path}', headers=headers)
-    print(response.ok)
     return response.ok
 
 def main():
