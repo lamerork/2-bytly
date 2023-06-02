@@ -1,6 +1,8 @@
 import requests
 from dotenv import load_dotenv
 import os
+from urllib.parse import urlparse
+
 
 def shorten_link(token, link):
 
@@ -19,6 +21,7 @@ def shorten_link(token, link):
 
     return bitlink['id']
 
+
 def get_link():
     user_link = input('Введите ссылку: ')
     return user_link
@@ -34,19 +37,25 @@ def count_clicks(token, link):
         'unit': 'day',
         'units': '-1'
     }
-
-    response = requests.get(f'{MAINLINK}{link}/clicks/summary', params=params, headers=headers)
-    print(response.url)
+    u = urlparse(link)
+    response = requests.get(f'{MAINLINK}{u.hostname}{u.path}/clicks/summary', params=params, headers=headers)
     response.raise_for_status()
     click_count = response.json()
 
     return click_count['total_clicks']
 
-def is_bitlink(url):
+
+def is_bitlink(token, url):
     
-    if url[:6] == 'https:' or url[:5] == 'http:':
-        return True
-    return False
+    headers = {
+        'Authorization': token,
+        'Content-Type': 'application/json'
+        }
+    
+    u = urlparse(url)
+    response = requests.get(f'{MAINLINK}{u.hostname}{u.path}', headers=headers)
+    print(response.ok)
+    return response.ok
 
 def main():
 
@@ -54,11 +63,11 @@ def main():
 
     try:
         
-        if is_bitlink(user_link):
-            print('Битлинк:', shorten_link(TOKEN, user_link))
+        if is_bitlink(TOKEN, user_link):
+            print('Клики:', count_clicks(TOKEN, user_link))
 
         else:
-            print('Клики:', count_clicks(TOKEN, user_link))
+            print('Битлинк:', shorten_link(TOKEN, user_link))
 
     except requests.exceptions.HTTPError:
         print("Ошибка! Неверная ссылка")
@@ -68,5 +77,5 @@ if __name__ == '__main__':
     load_dotenv()
     TOKEN = os.getenv("TOKEN")
     MAINLINK = os.getenv('MAINLINK')
-    
+
     main()
